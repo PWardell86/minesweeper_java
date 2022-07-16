@@ -1,4 +1,4 @@
-package src;
+package src.main;
 
 import java.util.Random;
 
@@ -27,7 +27,7 @@ public class TileGenerator {
      * @param openX The x coordinate of the centered tile
      * @param openY The y coordinate of the centered tile
      */
-    private Tile[] generateBombs(int openX, int openY) {
+    public Tile[] generateBombs(int openX, int openY) {
         // Generate bombs
         int placedBombs = 0;
         int tilesDone = 0;
@@ -44,15 +44,16 @@ public class TileGenerator {
                 dx = dx < 0 ? -dx : dx;
 
                 dy = openY - y;
-                dy = dx < 0 ? -dx : dx;
+                dy = dy < 0 ? -dy : dy;
                 int tileIndex = (x * this.width) + y;
 
                 if (dy < 2 && dx < 2) {
                     tiles[tileIndex] = new Tile((byte) 0, x, y);
+                    tilesDone++;
                     continue;
                 }
-
-                bombChance = (this.bombs - placedBombs) / (area - tilesDone);
+                //Make sure the bombChance is not an integer
+                bombChance = (float) (this.bombs - placedBombs) / (area - tilesDone);
                 if (bombChance > isBomb.nextFloat()) {
                     tiles[tileIndex] = new Tile((byte) 9, x, y);
                     placedBombs++;
@@ -72,7 +73,7 @@ public class TileGenerator {
      */
     private Tile[] generateTileValues(Tile[] bombs) {
         // Generate Tile values
-        byte count = 0;
+        byte count;
         Tile tile;
         for (int x = 0; x < this.height; x++) {
             for (int y = 0; y < this.width; y++) {
@@ -83,12 +84,9 @@ public class TileGenerator {
                 count = 0;
                 for (int checkX = -1; checkX < 2; checkX++) {
                     for (int checkY = -1; checkY < 2; checkY++) {
-                        try {
-                            if (bombs[((x + checkX) * this.width) + (y + checkY)].isBomb()) {
+                        int index = ((x + checkX) * this.width) + (y + checkY);
+                        if (index >= 0 && index < this.height * this.width && bombs[index].isBomb()) {
                                 count++;
-                            }
-                        } catch (IndexOutOfBoundsException e) {
-                            continue;
                         }
                     }
                 }

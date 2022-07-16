@@ -1,4 +1,4 @@
-package src;
+package src.main;
 
 import java.awt.Dimension;
 import javax.imageio.ImageIO;
@@ -13,13 +13,13 @@ import java.util.logging.*;
 import java.util.Arrays;
 
 
-public class msGUI extends JFrame {
+public class MinesweeperGUI extends JFrame {
     private final Logger LOG = Logger.getLogger(getClass().toString());
     private JPanel pnlBoard;
-    private final String filePath = "Themes/Default/";
+    private final String filePath = "resources/default/";
     private int tileSize;
 
-    public msGUI(Minesweeper ms, int tileSize) throws IOException {
+    public MinesweeperGUI(Minesweeper ms, int tileSize) throws IOException {
         this.tileSize = tileSize;
         pnlBoard = new JPanel();
         pnlBoard.setSize(900, 900);
@@ -81,18 +81,18 @@ public class msGUI extends JFrame {
         ImageIcon img = new ImageIcon();
         String name = "";
         JLabel tile;
-        
-        switch(value) {
-            case 0 : name = "none.png"; break;
-            case 1 : name =  "one.png"; break;
-            case 2 : name =  "two.png"; break;
-            case 3 : name =  "three.png"; break;
-            case 4 : name =  "four.png"; break;
-            case 5 : name =  "five.png";break;
-            case 6 : name =  "six.png"; break;
-            case 7 : name =  "seven.png"; break;
-            case 8 : name =  "eight.png"; break;
-            case 9 : name =  "bomb.png"; break;
+
+        switch (value) {
+            case 0 -> name = "none.png";
+            case 1 -> name = "one.png";
+            case 2 -> name = "two.png";
+            case 3 -> name = "three.png";
+            case 4 -> name = "four.png";
+            case 5 -> name = "five.png";
+            case 6 -> name = "six.png";
+            case 7 -> name = "seven.png";
+            case 8 -> name = "eight.png";
+            case 9 -> name = "bomb.png";
         }
         try {
             img = new ImageIcon(ImageIO.read(new File(this.filePath + name)));
