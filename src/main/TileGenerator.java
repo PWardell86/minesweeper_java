@@ -2,6 +2,8 @@ package src.main;
 
 import java.util.Random;
 
+import static java.lang.Math.abs;
+
 public class TileGenerator {
     private int height, width;
     private int bombs;
@@ -40,13 +42,9 @@ public class TileGenerator {
         for (int x = 0; x < this.width; x++) {
             for (int y = 0; y < this.height; y++) {
                 // Make sure no bombs are within 1 tile of the start position
-                dx = openX - x;
-                dx = dx < 0 ? -dx : dx;
-
-                dy = openY - y;
-                dy = dy < 0 ? -dy : dy;
+                dx = abs(openX - x);
+                dy = abs(openY - y);
                 int tileIndex = (x * this.width) + y;
-
                 if (dy < 2 && dx < 2) {
                     tiles[tileIndex] = new Tile((byte) 0, x, y);
                     tilesDone++;

@@ -31,6 +31,7 @@ public class Tile {
         if (value < 0 || value > 9){
             throw new IllegalArgumentException("Tile value must be in range: [0, 9]");
         }
+        this.value = value;
     }
 
     public boolean isBomb() {

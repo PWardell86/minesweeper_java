@@ -52,7 +52,6 @@ public class MinesweeperGUI extends JFrame {
                     int index;
                     if (tile.isVisible()) {
                         int[] pos = tile.getPosition();
-
                         index = (pos[1] * ms.getWidth()) + pos[0];
                         makeVisible(index, tile.getValue());
                     }

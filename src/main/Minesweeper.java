@@ -93,6 +93,5 @@ public class Minesweeper {
             clearBlanks(x, y);
         }
         return !tile.isBomb();
-
     }
 }

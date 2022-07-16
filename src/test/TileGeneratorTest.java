@@ -1,6 +1,6 @@
 package src.test;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import src.main.Tile;
 import src.main.TileGenerator;
 

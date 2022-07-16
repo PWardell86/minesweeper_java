@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            new MinesweeperGUI(new Minesweeper(10, 10, 0.5f), 25);
+            new MinesweeperGUI(new Minesweeper(10, 10, 0.16f), 25);
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Failed to make a new game due to: ", e);
         }
