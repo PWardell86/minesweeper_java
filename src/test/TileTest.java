@@ -5,7 +5,7 @@ import src.main.Tile;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static src.main.Tile.getNearTiles;
 public class TileTest {
     private final int WIDTH = 10;
@@ -13,20 +13,17 @@ public class TileTest {
     private final int MAX_BOMBS = WIDTH * HEIGHT;
     @Test
     public void getNearTiles_NoBombs_ShouldReturnAllEmpty() {
-        //TODO fix this test
         int start_x = WIDTH / 2;
         int start_y = HEIGHT / 2;
+        int index;
         Tile[] tiles = new Tile[WIDTH * HEIGHT];
-        Arrays.fill(tiles, new Tile((byte) 0, 0, 0));
-        for (int x = -1; x < 2; x ++) {
-            for (int y = -1; y < 2; y++) {
-                int index = (start_x + x) * WIDTH + (start_y + y);
-                tiles[index] = new Tile((byte) 9, 0, 0);
-            }
+        for (int i = 0; i < 9; i++) {
+            //Convert i to a coordinate from (-1, -1) to (1, 1)
+            index = (start_x + (i % 3 - 1)) * WIDTH + (start_y + (i / 3 - 1));
+            tiles[index] = new Tile((byte) 9, 0, 0);
         }
         Tile[] nearTiles = getNearTiles(start_x, start_y, WIDTH, HEIGHT, tiles);
-
-        Arrays.stream(nearTiles).forEach(tile -> assertTrue(tile == null || tile.getValue() == 9));
-
+        //Since we only assign values to the tiles near our tile, the others should be null
+        Arrays.stream(nearTiles).forEach(t -> assertNotNull("None of the near tiles should be null", t));
     }
 }

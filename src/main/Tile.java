@@ -43,9 +43,17 @@ public class Tile {
     }
 
     public void setFlagged(boolean flagged) {
-        this.flagged = flagged;
+        if (!this.visible){
+            this.flagged = flagged;
+        }
     }
-
+    public boolean toggleFlagged() {
+        if (!this.visible){
+            this.flagged = !this.flagged;
+            return true;
+        }
+        return false;
+    }
     public boolean isVisible() {
         return this.visible;
     }
@@ -69,14 +77,16 @@ public class Tile {
      */
     public static Tile[] getNearTiles(int x, int y, int width, int height, Tile[] tiles) {
         int index;
+        int y_off;
+        int x_off;
         Tile[] nearTiles = new Tile[9];
-        for (int x_off = -1; x < 2; x++){
-            for (int y_off = -1; y < 2; y++) {
-                index = (x + x_off) * width + (y + y_off);
-                if (index >= 0 && index < width * height) {
-                    nearTiles[(y_off + 1) * (x_off + 1)] = tiles[index];
-                }
-            }
+        for (int i = 0; i < 9; i++) {
+            x_off = (i % 3 - 1);
+            y_off = (i / 3 - 1);
+            index = (x + x_off) * width + (y + y_off);
+            try {
+                nearTiles[i] = tiles[index];
+            } catch (IndexOutOfBoundsException ignored) {}
         }
         return nearTiles;
     }

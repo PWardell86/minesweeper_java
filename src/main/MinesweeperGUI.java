@@ -1,16 +1,16 @@
 package src.main;
 
-import java.awt.Dimension;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.GridLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.*;
 import java.util.Arrays;
+import java.util.logging.Logger;
+
+import static java.awt.event.MouseEvent.BUTTON3;
 
 
 public class MinesweeperGUI extends JFrame {
@@ -40,23 +40,29 @@ public class MinesweeperGUI extends JFrame {
         }
         pnlBoard.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                int x, y;
-                x = e.getX() / tileSize;
-                y = e.getY() / tileSize;
-                if (ms.getTiles() == null){
+            public void mouseClicked(MouseEvent event) {
+                int x = event.getX() / tileSize;
+                int y = event.getY() / tileSize;
+                if (!ms.isStarted()){
                     ms.newGame(x, y);
                 }
-                ms.revealTile(x, y); //Reveal the tile at the location
+                if (event.getButton() == BUTTON3){
+                    if (ms.toggleTileFlag(x, y)){
+                        flagTile(y * ms.getWidth() + x);
+                    }
+                    return;
+                }
+
+                ms.revealTile(x, y);
+                //Reveal all tiles that are visible
                 Arrays.stream(ms.getTiles()).forEach(tile -> {
-                    int index;
-                    if (tile.isVisible()) {
+                    if (tile.isVisible() && !tile.isFlagged()) {
                         int[] pos = tile.getPosition();
-                        index = (pos[1] * ms.getWidth()) + pos[0];
+                        int index = (pos[1] * ms.getWidth()) + pos[0];
                         makeVisible(index, tile.getValue());
                     }
                 });
-                LOG.info(String.format("Clicked at (%d, %d)", x, y));
+                LOG.info(String.format("Clicked at (%d, %d) \nIndex: %d", x, y, x * ms.getWidth() + y));
             }
 
             @Override
@@ -77,9 +83,8 @@ public class MinesweeperGUI extends JFrame {
     }
 
     public void makeVisible(int index, int value){
-        ImageIcon img = new ImageIcon();
-        String name = "";
-        JLabel tile;
+        ImageIcon img;
+        String name;
 
         switch (value) {
             case 0 -> name = "none.png";
@@ -92,22 +97,44 @@ public class MinesweeperGUI extends JFrame {
             case 7 -> name = "seven.png";
             case 8 -> name = "eight.png";
             case 9 -> name = "bomb.png";
+            default -> name = "";
         }
         try {
             img = new ImageIcon(ImageIO.read(new File(this.filePath + name)));
         } catch (IOException e){
             LOG.severe(String.format("Problem making image from %s", this.filePath + name));
+            return;
         }
-        
         Image i2 = img.getImage();
         i2 = i2.getScaledInstance(this.tileSize, this.tileSize, java.awt.Image.SCALE_SMOOTH);
         img = new ImageIcon(i2);
         pnlBoard.remove(index);
-        tile = new JLabel(img);
+
+        JLabel tile = new JLabel(img);
         tile.setSize(new Dimension(this.tileSize, this.tileSize));
         pnlBoard.add(tile, index);
         pack();
         
     }
+    private void flagTile(int index) {
+        ImageIcon img;
+        try {
+            img = new ImageIcon(ImageIO.read(new File(this.filePath + "flag.png")));
+        } catch (IOException e){
+            LOG.severe(String.format("Problem making image from %s", this.filePath + "flag.png"));
+            return;
+        }
+        Image i2 = img.getImage();
+        i2 = i2.getScaledInstance(this.tileSize, this.tileSize, java.awt.Image.SCALE_SMOOTH);
+        img = new ImageIcon(i2);
+        pnlBoard.remove(index);
+
+        JLabel tile = new JLabel(img);
+        tile.setSize(new Dimension(this.tileSize, this.tileSize));
+        pnlBoard.add(tile, index);
+        pack();
+
+    }
+
 
 }

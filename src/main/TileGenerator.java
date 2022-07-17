@@ -1,10 +1,13 @@
 package src.main;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 import static java.lang.Math.abs;
+import static java.util.logging.Logger.getLogger;
 
 public class TileGenerator {
+    private final Logger LOG = getLogger(TileGenerator.class.toString());
     private int height, width;
     private int bombs;
 
@@ -71,7 +74,8 @@ public class TileGenerator {
      */
     private Tile[] generateTileValues(Tile[] bombs) {
         // Generate Tile values
-        byte count;
+        byte count = 0;
+        int index;
         Tile tile;
         for (int x = 0; x < this.height; x++) {
             for (int y = 0; y < this.width; y++) {
@@ -79,20 +83,20 @@ public class TileGenerator {
                 if (tile.isBomb()) {
                     continue;
                 }
-                count = 0;
-                for (int checkX = -1; checkX < 2; checkX++) {
-                    for (int checkY = -1; checkY < 2; checkY++) {
-                        int index = ((x + checkX) * this.width) + (y + checkY);
-                        if (index >= 0 && index < this.height * this.width && bombs[index].isBomb()) {
-                                count++;
+                for (int i = 0; i < 9; i++) {
+                    //Convert i to a coordinate from (-1, -1) to (1, 1)
+                    index = (x + (i / 3 - 1)) * this.width + (y + (i % 3 - 1));
+                    try {
+                        if (bombs[index].isBomb()) {
+                            count++;
                         }
+                    } catch(IndexOutOfBoundsException ignored){
                     }
                 }
                 tile.setValue(count);
+                count = 0;
             }
-
         }
-
         return bombs;
     }
 
