@@ -1,8 +1,15 @@
-package src;
+package src.main;
 
+import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
+
+import static java.lang.Math.abs;
+import static java.util.logging.Logger.getLogger;
+import static src.main.Tile.getNearTiles;
 
 public class TileGenerator {
+    private final Logger LOG = getLogger(TileGenerator.class.toString());
     private int height, width;
     private int bombs;
 
@@ -27,7 +34,7 @@ public class TileGenerator {
      * @param openX The x coordinate of the centered tile
      * @param openY The y coordinate of the centered tile
      */
-    private Tile[] generateBombs(int openX, int openY) {
+    public Tile[] generateBombs(int openX, int openY) {
         // Generate bombs
         int placedBombs = 0;
         int tilesDone = 0;
@@ -40,24 +47,21 @@ public class TileGenerator {
         for (int x = 0; x < this.width; x++) {
             for (int y = 0; y < this.height; y++) {
                 // Make sure no bombs are within 1 tile of the start position
-                dx = openX - x;
-                dx = dx < 0 ? -dx : dx;
-
-                dy = openY - y;
-                dy = dx < 0 ? -dx : dx;
-                int tileIndex = (x * this.width) + y;
-
+                dx = abs(openX - x);
+                dy = abs(openY - y);
+                int tileIndex = (y * this.width) + x;
                 if (dy < 2 && dx < 2) {
-                    tiles[tileIndex] = new Tile((byte) 0, x, y);
+                    tiles[tileIndex] = new Tile((byte) 0, tileIndex);
+                    tilesDone++;
                     continue;
                 }
-
-                bombChance = (this.bombs - placedBombs) / (area - tilesDone);
+                //Make sure the bombChance is not an integer
+                bombChance = (float) (this.bombs - placedBombs) / (area - tilesDone);
                 if (bombChance > isBomb.nextFloat()) {
-                    tiles[tileIndex] = new Tile((byte) 9, x, y);
+                    tiles[tileIndex] = new Tile((byte) 9, tileIndex);
                     placedBombs++;
                 } else {
-                    tiles[tileIndex] = new Tile((byte) 0, x, y);
+                    tiles[tileIndex] = new Tile((byte) 0, tileIndex);
                 }
                 tilesDone++;
             }
@@ -73,6 +77,7 @@ public class TileGenerator {
     private Tile[] generateTileValues(Tile[] bombs) {
         // Generate Tile values
         byte count = 0;
+        int index;
         Tile tile;
         for (int x = 0; x < this.height; x++) {
             for (int y = 0; y < this.width; y++) {
@@ -80,23 +85,13 @@ public class TileGenerator {
                 if (tile.isBomb()) {
                     continue;
                 }
-                count = 0;
-                for (int checkX = -1; checkX < 2; checkX++) {
-                    for (int checkY = -1; checkY < 2; checkY++) {
-                        try {
-                            if (bombs[((x + checkX) * this.width) + (y + checkY)].isBomb()) {
-                                count++;
-                            }
-                        } catch (IndexOutOfBoundsException e) {
-                            continue;
-                        }
-                    }
-                }
+                count = (byte) Arrays.stream(getNearTiles(x, y, this.width, this.height, bombs))
+                        .filter(t -> t != null && t.isBomb())
+                        .count();
                 tile.setValue(count);
+                count = 0;
             }
-
         }
-
         return bombs;
     }
 
