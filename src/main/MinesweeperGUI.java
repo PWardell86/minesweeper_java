@@ -12,12 +12,11 @@ import java.util.logging.Logger;
 
 import static java.awt.event.MouseEvent.BUTTON3;
 
-
 public class MinesweeperGUI extends JFrame {
     private final Logger LOG = Logger.getLogger(getClass().toString());
-    private JPanel pnlBoard;
+    private final JPanel pnlBoard;
     private final String filePath = "resources/default/";
-    private int tileSize;
+    private final int tileSize;
 
     public MinesweeperGUI(Minesweeper ms, int tileSize) throws IOException {
         this.tileSize = tileSize;
@@ -43,28 +42,24 @@ public class MinesweeperGUI extends JFrame {
             public void mouseClicked(MouseEvent event) {
                 int x = event.getX() / tileSize;
                 int y = event.getY() / tileSize;
+                int index = y * ms.getWidth() + x;
+                if (event.getButton() == BUTTON3){
+                    boolean isFlagged = ms.toggleTileFlag(index);
+                    flagTile(index, isFlagged);
+                    return;
+                }
                 if (!ms.isStarted()){
                     ms.newGame(x, y);
                 }
-                if (event.getButton() == BUTTON3){
-                    if (ms.toggleTileFlag(x, y)){
-                        flagTile(y * ms.getWidth() + x);
-                    }
-                    return;
-                }
-
+                System.out.println("mouse 1");
                 ms.revealTile(x, y);
                 //Reveal all tiles that are visible
                 Arrays.stream(ms.getTiles()).forEach(tile -> {
                     if (tile.isVisible() && !tile.isFlagged()) {
-                        int[] pos = tile.getPosition();
-                        int index = (pos[1] * ms.getWidth()) + pos[0];
-                        makeVisible(index, tile.getValue());
+                        makeVisible(tile.getIndex(), tile.getValue());
                     }
                 });
-                LOG.info(String.format("Clicked at (%d, %d) \nIndex: %d", x, y, x * ms.getWidth() + y));
             }
-
             @Override
             public void mousePressed(MouseEvent e) {}
             @Override
@@ -116,24 +111,24 @@ public class MinesweeperGUI extends JFrame {
         pack();
         
     }
-    private void flagTile(int index) {
+    private void flagTile(int index, boolean currentlyFlagged) {
         ImageIcon img;
+        String name = currentlyFlagged ? "flag.png" : "blank.png";
         try {
-            img = new ImageIcon(ImageIO.read(new File(this.filePath + "flag.png")));
+            img = new ImageIcon(ImageIO.read(new File(this.filePath + name)));
         } catch (IOException e){
-            LOG.severe(String.format("Problem making image from %s", this.filePath + "flag.png"));
+            LOG.severe(String.format("Problem making image from %s", this.filePath + name));
             return;
         }
-        Image i2 = img.getImage();
-        i2 = i2.getScaledInstance(this.tileSize, this.tileSize, java.awt.Image.SCALE_SMOOTH);
-        img = new ImageIcon(i2);
+        img = new ImageIcon(img
+                .getImage()
+                .getScaledInstance(this.tileSize, this.tileSize, java.awt.Image.SCALE_SMOOTH));
         pnlBoard.remove(index);
 
         JLabel tile = new JLabel(img);
         tile.setSize(new Dimension(this.tileSize, this.tileSize));
         pnlBoard.add(tile, index);
         pack();
-
     }
 
 

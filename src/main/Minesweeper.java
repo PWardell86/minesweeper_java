@@ -3,9 +3,10 @@ package src.main;
 import java.util.Arrays;
 
 public class Minesweeper {
-    private int height, width;
+    private final int height;
+    private final int width;
     private Tile[] tiles;
-    private TileGenerator tg;
+    private final TileGenerator tg;
     private boolean started = false;
 
     /**
@@ -48,12 +49,9 @@ public class Minesweeper {
     /**
      * Tries to toggle the flagged state of the tile at the coordinates (x, y)
      * Will only toggle if the tile is not visible
-     *
-     * @param x The x coordinate of the tile
-     * @param y The y coordinate of the tile
      */
-    public boolean toggleTileFlag(int x, int y) {
-        Tile tile = this.tiles[(x * this.width) + y];
+    public boolean toggleTileFlag(int index) {
+        Tile tile = this.tiles[index];
         return tile.toggleFlagged();
     }
 
@@ -75,7 +73,7 @@ public class Minesweeper {
                 if (!(col == 0 && row == 0)) {
                     int new_x = x + col;
                     int new_y = y + row;
-                    index = (new_x * this.width) + new_y;
+                    index = (new_y * this.width) + new_x;
                     try {
                         if (!this.tiles[index].isVisible() && isNearTileCoordinateGood(new_x, new_y)) {
                             revealTile(new_x, new_y);
@@ -88,8 +86,8 @@ public class Minesweeper {
     private boolean isNearTileCoordinateGood(int x, int y) {
         return x >= 0
                 && y >= 0
-                && x < 10
-                && y < 10;
+                && x < this.width
+                && y < this.height;
     }
     /**
      * Reveals the tile at the grid coordinates (x, y)
@@ -97,13 +95,12 @@ public class Minesweeper {
      * @param x The x coordinate of the tile
      * @param y The y coordinate of the tile
      */
-    public boolean revealTile(int x, int y) {
-        Tile tile = this.tiles[x * this.width + y];
+    public void revealTile(int x, int y) {
+        Tile tile = this.tiles[y * this.width + x];
         tile.setVisible(true);
 
         if (tile.getValue() == 0) {
             clearBlanks(x, y);
         }
-        return !tile.isBomb();
     }
 }
