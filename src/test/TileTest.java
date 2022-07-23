@@ -20,10 +20,17 @@ public class TileTest {
         for (int i = 0; i < 9; i++) {
             //Convert i to a coordinate from (-1, -1) to (1, 1)
             index = (start_x + (i % 3 - 1)) * WIDTH + (start_y + (i / 3 - 1));
-            tiles[index] = new Tile((byte) 9, 0, 0);
+            tiles[index] = new Tile((byte) 9, 0);
         }
         Tile[] nearTiles = getNearTiles(start_x, start_y, WIDTH, HEIGHT, tiles);
         //Since we only assign values to the tiles near our tile, the others should be null
         Arrays.stream(nearTiles).forEach(t -> assertNotNull("None of the near tiles should be null", t));
+    }
+
+    @Test
+    public void getNearTiles_NoBombs_ProperNumberOfTilesShouldBeNull() {
+        Tile[] tiles = new Tile[WIDTH * HEIGHT];
+        Arrays.fill(tiles, new Tile((byte) 0, 0));
+        Tile[] corner1 = getNearTiles(0, 0, WIDTH, HEIGHT, tiles);
     }
 }

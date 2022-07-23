@@ -1,10 +1,12 @@
 package src.main;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
 
 import static java.lang.Math.abs;
 import static java.util.logging.Logger.getLogger;
+import static src.main.Tile.getNearTiles;
 
 public class TileGenerator {
     private final Logger LOG = getLogger(TileGenerator.class.toString());
@@ -47,19 +49,19 @@ public class TileGenerator {
                 // Make sure no bombs are within 1 tile of the start position
                 dx = abs(openX - x);
                 dy = abs(openY - y);
-                int tileIndex = (x * this.width) + y;
+                int tileIndex = (y * this.width) + x;
                 if (dy < 2 && dx < 2) {
-                    tiles[tileIndex] = new Tile((byte) 0, x, y);
+                    tiles[tileIndex] = new Tile((byte) 0, tileIndex);
                     tilesDone++;
                     continue;
                 }
                 //Make sure the bombChance is not an integer
                 bombChance = (float) (this.bombs - placedBombs) / (area - tilesDone);
                 if (bombChance > isBomb.nextFloat()) {
-                    tiles[tileIndex] = new Tile((byte) 9, x, y);
+                    tiles[tileIndex] = new Tile((byte) 9, tileIndex);
                     placedBombs++;
                 } else {
-                    tiles[tileIndex] = new Tile((byte) 0, x, y);
+                    tiles[tileIndex] = new Tile((byte) 0, tileIndex);
                 }
                 tilesDone++;
             }
@@ -83,16 +85,9 @@ public class TileGenerator {
                 if (tile.isBomb()) {
                     continue;
                 }
-                for (int i = 0; i < 9; i++) {
-                    //Convert i to a coordinate from (-1, -1) to (1, 1)
-                    index = (x + (i / 3 - 1)) * this.width + (y + (i % 3 - 1));
-                    try {
-                        if (bombs[index].isBomb()) {
-                            count++;
-                        }
-                    } catch(IndexOutOfBoundsException ignored){
-                    }
-                }
+                count = (byte) Arrays.stream(getNearTiles(x, y, this.width, this.height, bombs))
+                        .filter(t -> t != null && t.isBomb())
+                        .count();
                 tile.setValue(count);
                 count = 0;
             }
